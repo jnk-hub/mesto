@@ -34,7 +34,7 @@ services:
       mongo:
         condition: service_healthy
     ports:
-      - 3001:3000
+      - 3000:3000
     healthcheck:
       interval: 10s
       timeout: 2s 
@@ -42,21 +42,46 @@ services:
       retries: 5 
       test: node healthcheck.js
 
-  frontend-test:
+  main-microfrontend:
     build:
-      context: frontend
-      dockerfile: ../Dockerfile.frontend
-    command: yarn test:microfrontend
-    restart: 'no'
-    environment:
-          CI: true
-
-  frontend:
-    build:
-      context: frontend
-      dockerfile: ../Dockerfile.frontend
+      context: frontend/main
+      dockerfile: ../../Dockerfile.frontend
     ports:
-      - 3000:3000
+      - 8080:8080
+    depends_on:
+      auth-microfrontend:
+        condition: service_started
+      profile-microfrontend:
+        condition: service_started
+      card-microfrontend:
+        condition: service_started
+
+  auth-microfrontend:
+    build:
+      context: frontend/auth
+      dockerfile: ../../Dockerfile.frontend
+    ports:
+      - 8081:8081
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  profile-microfrontend:
+    build:
+      context: frontend/profile
+      dockerfile: ../../Dockerfile.frontend
+    ports:
+      - 8082:8082
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  card-microfrontend:
+    build:
+      context: frontend/card
+      dockerfile: ../../Dockerfile.frontend
+    ports:
+      - 8083:8083
     depends_on:
       backend:
         condition: service_healthy
