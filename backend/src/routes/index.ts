@@ -13,6 +13,10 @@ import cardRouter from './cards';
 import userRouter from './users';
 
 const router = Router();
+router.use((_: Request, res: Response, next: NextFunction) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  next();
+});
 router.post('/signup', validateUserBody, createUser);
 router.post('/signin', validateAuthentication, login);
 
